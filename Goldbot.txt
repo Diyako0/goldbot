@@ -1,0 +1,32 @@
+import asyncio
+from telegram import Update
+from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
+
+TOKEN = "7310846345:AAFoXrWoycTpivfIThMqUb9Db1GlNCqfGVk"
+
+def calculate_price(weight, price_per_gram):
+    return round((weight * 745 / 705) * price_per_gram)
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("سلام عشقم! وزن و قیمت طلا رو بفرست. مثلاً: 10 40000000")
+
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    try:
+        parts = update.message.text.strip().split()
+        weight = float(parts[0])
+        price = int(parts[1])
+        total = calculate_price(weight, price)
+        await update.message.reply_text(f"قیمت نهایی: {total:,} ریال")
+    except:
+        await update.message.reply_text("درست بفرست عشقم. مثل این: 10 40000000")
+
+async def main():
+    app = Application.builder().token(TOKEN).build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+
+    print("ربات داره اجرا میشه گلم...")
+    await app.run_polling()
+
+if __name__ == "__main__":
+    asyncio.run(main())
